@@ -2,35 +2,56 @@
   "version": 2.0,
   "questions": [
     {
-      "question": "This is a Sample Question 1?",
+      "question": "Which filter is most effective for removing salt-and-pepper noise?",
       "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
+        "a": "Mean Filter",
+        "b": "Gaussian Filter",
+        "c": "Median Filter",
+        "d": "Sobel Filter"
       },
-      "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
-      },
-      "correctAnswer": "a",
+      "correctAnswer": "c",
       "difficulty": "beginner"
     },
     {
-      "question": "This is a Sample Question 2?",
+      "question": "The Laplacian operator is based on:",
       "answers": {
-        "a": "answer1",
-        "b": "answer2",
-        "c": "answer3",
-        "d": "answer4"
+        "a": "First derivative",
+        "b": "Second derivative",
+        "c": "Integral",
+        "d": "Histogram"
       },
-      "explanations": {
-        "a": "Explanation 1  <a href='www.google.com'>here</a>",
-        "b": "Explanation 2",
-        "c": "Explanation 2",
-        "d": "Explanation 2"
+      "correctAnswer": "b",
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "Unsharp masking enhances:",
+      "answers": {
+        "a": "Low frequencies",
+        "b": "High frequencies",
+        "c": "Both",
+        "d": "None"
+      },
+      "correctAnswer": "b",
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "Gaussian smoothing is mainly used to:",
+      "answers": {
+        "a": "Sharpen edges",
+        "b": "Reduce Gaussian noise",
+        "c": "Segment objects",
+        "d": "Detect corners"
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Mean filter may blur:",
+      "answers": {
+        "a": "Only background",
+        "b": "Only foreground",
+        "c": "Edges",
+        "d": "Histogram peaks"
       },
       "correctAnswer": "c",
       "difficulty": "beginner"
