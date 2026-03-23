@@ -1,0 +1,60 @@
+{
+  "version": 2.0,
+  "questions": [
+    {
+      "question": "Which filter is most effective for removing salt-and-pepper noise?",
+      "answers": {
+        "a": "Mean Filter",
+        "b": "Gaussian Filter",
+        "c": "Median Filter",
+        "d": "Sobel Filter"
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "The Laplacian operator is based on:",
+      "answers": {
+        "a": "First derivative",
+        "b": "Second derivative",
+        "c": "Integral",
+        "d": "Histogram"
+      },
+      "correctAnswer": "b",
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "Unsharp masking enhances:",
+      "answers": {
+        "a": "Low frequencies",
+        "b": "High frequencies",
+        "c": "Both",
+        "d": "None"
+      },
+      "correctAnswer": "b",
+      "difficulty": "intermediate"
+    },
+    {
+      "question": "Gaussian smoothing is mainly used to:",
+      "answers": {
+        "a": "Sharpen edges",
+        "b": "Reduce Gaussian noise",
+        "c": "Segment objects",
+        "d": "Detect corners"
+      },
+      "correctAnswer": "b",
+      "difficulty": "beginner"
+    },
+    {
+      "question": "Mean filter may blur:",
+      "answers": {
+        "a": "Only background",
+        "b": "Only foreground",
+        "c": "Edges",
+        "d": "Histogram peaks"
+      },
+      "correctAnswer": "c",
+      "difficulty": "beginner"
+    }
+  ]
+}

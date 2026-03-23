@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Experiment 1: Image Enhancement</title>
+
+   <link rel="stylesheet" href="css/main.css" />
+  <script src="https://docs.opencv.org/4.x/opencv.js"></script>
+  <script src="js/main.js" defer></script>
+
+    <style>
+      :root {
+        /* Neutral base */
+        --bg: #0b1220;
+        --panel: rgba(255, 255, 255, 0.06);
+        --card: rgba(255, 255, 255, 0.08);
+        --border: rgba(255, 255, 255, 0.12);
+        --border2: rgba(255, 255, 255, 0.16);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.62);
+
+        /* Accent */
+        --accent: #4f8cff; /* calm blue */
+        --accent2: #6ee7ff; /* cyan */
+        --ok: #22c55e;
+        --warn: #f59e0b;
+        --err: #ef4444;
+
+        --radius: 16px;
+        --radius2: 12px;
+        --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+        --shadow2: 0 10px 24px rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial;
+        background:
+          radial-gradient(
+            900px 600px at 10% 0%,
+            rgba(79, 140, 255, 0.22),
+            transparent 60%
+          ),
+          radial-gradient(
+            900px 600px at 90% 10%,
+            rgba(110, 231, 255, 0.16),
+            transparent 60%
+          ),
+          radial-gradient(
+            900px 600px at 40% 100%,
+            rgba(79, 140, 255, 0.12),
+            transparent 60%
+          ),
+          var(--bg);
+      }
+
+      .wrap {
+        min-height: 100vh;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      /* Top bar */
+      header {
+        padding: 16px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .brand .kicker {
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: 0.25px;
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+      }
+
+      .brand .subtitle {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 999px;
+        backdrop-filter: blur(10px);
+        box-shadow: var(--shadow2);
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--warn);
+        box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.14);
+      }
+      .status-pill span {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .btn {
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        font-size: 13px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        backdrop-filter: blur(10px);
+      }
+      .btn:hover {
+        border-color: var(--border2);
+      }
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .btn.primary {
+        background: linear-gradient(
+          135deg,
+          rgba(79, 140, 255, 0.95),
+          rgba(110, 231, 255, 0.85)
+        );
+        border-color: transparent;
+        color: #07101f;
+        font-weight: 700;
+      }
+
+      /* Main grid */
+      main {
+        padding: 0 18px 18px;
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 14px;
+      }
+
+      .panel,
+      .workspace {
+        border-radius: var(--radius);
+        background: var(--panel);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      /* Panel */
+      .panel {
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .section {
+        border-radius: var(--radius2);
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px;
+      }
+
+      .section h3 {
+        margin: 0 0 10px 0;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+
+      label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      select,
+      input[type="file"],
+      input[type="number"],
+      input[type="range"] {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 10px 10px;
+        background: rgba(10, 18, 32, 0.55);
+        color: var(--text);
+        outline: none;
+      }
+
+      input[type="range"] {
+        padding: 0;
+        height: 34px;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      /* Filter chips (still uses select under the hood) */
+      .chipbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 10px;
+        justify-content: center; /* key line */
+      }
+      .chip {
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--muted);
+        font-size: 12px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .chip.active {
+        color: #081225;
+        border-color: rgba(110, 231, 255, 0.65);
+        background: linear-gradient(
+          135deg,
+          rgba(79, 140, 255, 0.9),
+          rgba(110, 231, 255, 0.78)
+        );
+        font-weight: 800;
+      }
+
+      /* Param rows */
+      .row2 {
+        display: grid;
+        grid-template-columns: 1fr 98px;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .param-group {
+        display: none;
+        margin-top: 10px;
+      }
+      .param-group.active {
+        display: block;
+      }
+
+      /* Action button (left panel) */
+      .panel-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .panel-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      /* Workspace */
+      .workspace {
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .ws-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .badge {
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .canvas-card {
+        border-radius: var(--radius2);
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+      }
+
+      .canvas-head {
+        padding: 10px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+      }
+      .canvas-head .title {
+        font-size: 13px;
+        font-weight: 800;
+      }
+      .canvas-head .meta {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .canvas-wrap {
+        padding: 12px;
+      }
+
+      canvas {
+        width: 100%;
+        height: 420px;
+        border-radius: 12px;
+        border: 1px dashed rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.98);
+      }
+
+      /* Responsive */
+      @media (max-width: 1100px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+        .grid2 {
+          grid-template-columns: 1fr;
+        }
+        canvas {
+          height: 340px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="brand">
+          <div class="kicker"></div>
+          <h1>Experiment 1: Image Enhancement</h1>
+          <p class="subtitle">
+            Smoothing and sharpening filters with live auto-update
+          </p>
+        </div>
+
+        <div class="top-actions">
+          <div class="status-pill">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText">Loading OpenCV.js…</span>
+          </div>
+
+          <!-- Apply button removed from header -->
+          <button class="btn" id="resetBtn" disabled>Reset</button>
+          <button class="btn" id="downloadBtn" disabled>Download</button>
+          <button class="btn" id="fullscreenBtn">Fullscreen</button>
+        </div>
+      </header>
+
+      <main>
+        <!-- Left controls -->
+        <aside class="panel">
+          <div class="section">
+            <h3>Input</h3>
+            <div class="field">
+              <label for="fileInput">Upload image</label>
+              <input type="file" id="fileInput" accept="image/*" />
+            </div>
+            <div class="field" style="margin-bottom: 0">
+              <label for="sampleSelect">Or choose a sample</label>
+              <select id="sampleSelect">
+                <option value="">Select a sample…</option>
+                <option value="samples/lena.png">Sample: Lena</option>
+                <option value="samples/noisy.png">Sample: Noisy Image</option>
+                <option value="samples/lowcontrast.png">
+                  Sample: Low Contrast
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>Filter</h3>
+
+            <!-- Chips -->
+            <div class="chipbar" id="chipbar">
+              <div class="chip active" data-val="mean">Mean</div>
+              <div class="chip" data-val="gaussian">Gaussian</div>
+              <div class="chip" data-val="median">Median</div>
+              <div class="chip" data-val="laplacian">Laplacian</div>
+              <div class="chip" data-val="unsharp">Unsharp</div>
+            </div>
+
+            <!-- Backing select for compatibility -->
+            <select id="filterSelect" style="display: none">
+              <option value="mean">Mean Filter</option>
+              <option value="gaussian">Gaussian Filter</option>
+              <option value="median">Median Filter</option>
+              <option value="laplacian">Laplacian</option>
+              <option value="unsharp">Unsharp Masking</option>
+            </select>
+          </div>
+
+          <div class="section">
+            <h3>Parameters</h3>
+
+            <div class="param-group active" id="params-mean">
+              <div class="field">
+                <label>Kernel size (odd)</label>
+                <div class="row2">
+                  <input
+                    type="range"
+                    id="meanK"
+                    min="1"
+                    max="21"
+                    step="2"
+                    value="3"
+                  />
+                  <input
+                    type="number"
+                    id="meanKNum"
+                    min="1"
+                    max="21"
+                    step="2"
+                    value="3"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="param-group" id="params-gaussian">
+              <div class="field">
+                <label>Kernel size (odd)</label>
+                <div class="row2">
+                  <input
+                    type="range"
+                    id="gaussK"
+                    min="1"
+                    max="31"
+                    step="2"
+                    value="5"
+                  />
+                  <input
+                    type="number"
+                    id="gaussKNum"
+                    min="1"
+                    max="31"
+                    step="2"
+                    value="5"
+                  />
+                </div>
+              </div>
+              <div class="field" style="margin-bottom: 0">
+                <label>Sigma</label>
+                <div class="row2">
+                  <input
+                    type="range"
+                    id="gaussSigma"
+                    min="0"
+                    max="10"
+                    step="0.1"
+                    value="1.0"
+                  />
+                  <input
+                    type="number"
+                    id="gaussSigmaNum"
+                    min="0"
+                    max="10"
+                    step="0.1"
+                    value="1.0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="param-group" id="params-median">
+              <div class="field" style="margin-bottom: 0">
+                <label>Kernel size (odd)</label>
+                <div class="row2">
+                  <input
+                    type="range"
+                    id="medianK"
+                    min="1"
+                    max="31"
+                    step="2"
+                    value="5"
+                  />
+                  <input
+                    type="number"
+                    id="medianKNum"
+                    min="1"
+                    max="31"
+                    step="2"
+                    value="5"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="param-group" id="params-laplacian">
+              <div class="field">
+                <label>Kernel size</label>
+                <div class="row2">
+                  <input
+                    type="range"
+                    id="lapK"
+                    min="1"
+                    max="7"
+                    step="2"
+                    value="3"
+                  />
+                  <input
+                    type="number"
+                    id="lapKNum"
+                    min="1"
+                    max="7"
+                    step="2"
+                    value="3"
+                  />
+                </div>
+              </div>
+              <div class="field" style="margin-bottom: 0">
+                <label>Scale</label>
+                <div class="row2">
+                  <input
+                    type="range"
+                    id="lapScale"
+                    min="0.1"
+                    max="5"
+                    step="0.1"
+                    value="1.0"
+                  />
+                  <input
+                    type="number"
+                    id="lapScaleNum"
+                    min="0.1"
+                    max="5"
+                    step="0.1"
+                    value="1.0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="param-group" id="params-unsharp">
+              <div class="field">
+                <label>Blur kernel (odd)</label>
+                <div class="row2">
+                  <input
+                    type="range"
+                    id="usK"
+                    min="1"
+                    max="31"
+                    step="2"
+                    value="5"
+                  />
+                  <input
+                    type="number"
+                    id="usKNum"
+                    min="1"
+                    max="31"
+                    step="2"
+                    value="5"
+                  />
+                </div>
+              </div>
+              <div class="field">
+                <label>Amount</label>
+                <div class="row2">
+                  <input
+                    type="range"
+                    id="usAmount"
+                    min="0"
+                    max="3"
+                    step="0.05"
+                    value="1.0"
+                  />
+                  <input
+                    type="number"
+                    id="usAmountNum"
+                    min="0"
+                    max="3"
+                    step="0.05"
+                    value="1.0"
+                  />
+                </div>
+              </div>
+              <div class="field" style="margin-bottom: 0">
+                <label>Threshold</label>
+                <div class="row2">
+                  <input
+                    type="range"
+                    id="usThresh"
+                    min="0"
+                    max="50"
+                    step="1"
+                    value="0"
+                  />
+                  <input
+                    type="number"
+                    id="usThreshNum"
+                    min="0"
+                    max="50"
+                    step="1"
+                    value="0"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NEW: Apply button moved to left panel (keeps same id="runBtn") -->
+
+          <div class="panel-actions">
+            <button class="btn primary" id="runBtn" disabled>Apply</button>
+          </div>
+        </aside>
+
+        <!-- Workspace -->
+        <section class="workspace" id="workspace">
+          <div class="ws-top">
+            <div class="badge" id="imageMeta">No image loaded</div>
+            <div class="badge" id="procMeta">—</div>
+          </div>
+
+          <div class="grid2">
+            <div class="canvas-card">
+              <div class="canvas-head">
+                <div class="title">Original</div>
+                <div class="meta" id="origMeta">—</div>
+              </div>
+              <div class="canvas-wrap">
+                <canvas id="inputCanvas"></canvas>
+              </div>
+            </div>
+
+            <div class="canvas-card">
+              <div class="canvas-head">
+                <div class="title">Processed</div>
+                <div class="meta">Live</div>
+              </div>
+              <div class="canvas-wrap">
+                <canvas id="outputCanvas"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      function onOpenCvReady() {
+        document.getElementById("statusText").textContent = "OpenCV.js ready";
+        const dot = document.getElementById("statusDot");
+        dot.style.background = "#22c55e";
+        dot.style.boxShadow = "0 0 0 6px rgba(34,197,94,0.16)";
+      }
+
+      // Chips -> sync with hidden select + parameter group switching + slider/number sync
+      document.addEventListener("DOMContentLoaded", () => {
+        const filterSelect = document.getElementById("filterSelect");
+        const chipbar = document.getElementById("chipbar");
+        const chips = [...chipbar.querySelectorAll(".chip")];
+        const groups = ["mean", "gaussian", "median", "laplacian", "unsharp"];
+
+        function setActiveFilter(val) {
+          filterSelect.value = val;
+          chips.forEach((c) =>
+            c.classList.toggle("active", c.dataset.val === val),
+          );
+          groups.forEach((g) => {
+            const el = document.getElementById(`params-${g}`);
+            el.classList.toggle("active", g === val);
+          });
+
+          // trigger change so your JS auto-applies
+          filterSelect.dispatchEvent(new Event("change"));
+        }
+
+        chipbar.addEventListener("click", (e) => {
+          const chip = e.target.closest(".chip");
+          if (!chip) return;
+          setActiveFilter(chip.dataset.val);
+        });
+
+        function bindPair(rangeId, numId) {
+          const r = document.getElementById(rangeId);
+          const n = document.getElementById(numId);
+          if (!r || !n) return;
+          r.addEventListener("input", () => (n.value = r.value));
+          n.addEventListener("input", () => (r.value = n.value));
+        }
+
+        bindPair("meanK", "meanKNum");
+        bindPair("gaussK", "gaussKNum");
+        bindPair("gaussSigma", "gaussSigmaNum");
+        bindPair("medianK", "medianKNum");
+        bindPair("lapK", "lapKNum");
+        bindPair("lapScale", "lapScaleNum");
+        bindPair("usK", "usKNum");
+        bindPair("usAmount", "usAmountNum");
+        bindPair("usThresh", "usThreshNum");
+
+        // Fullscreen workspace
+        document
+          .getElementById("fullscreenBtn")
+          .addEventListener("click", async () => {
+            const ws = document.getElementById("workspace");
+            if (!document.fullscreenElement) await ws.requestFullscreen();
+            else await document.exitFullscreen();
+          });
+
+        // initial group sync
+        setActiveFilter("mean");
+      });
+    </script>
+  <script src="../assets/js/iframeResize.js"></script>
+        
+        </body>
+</html>
