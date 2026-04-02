@@ -2,58 +2,37 @@
   "version": 2.0,
   "questions": [
     {
-      "question": "Increasing kernel size in smoothing filters:",
+      "question": "This is a Sample Question 1?",
       "answers": {
-        "a": "Increases blurring",
-        "b": "Reduces blurring",
-        "c": "Sharpens image",
-        "d": "None"
+        "a": "answer1",
+        "b": "answer2",
+        "c": "answer3",
+        "d": "answer4"
+      },
+      "explanations": {
+        "a": "Explanation 1  <a href='www.google.com'>here</a>",
+        "b": "Explanation 2",
+        "c": "Explanation 2",
+        "d": "Explanation 2"
       },
       "correctAnswer": "a",
       "difficulty": "beginner"
     },
     {
-      "question": "The unsharp masking technique enhances:",
+      "question": "This is a Sample Question 2?",
       "answers": {
-        "a": "Noise",
-        "b": "Smooth regions",
-        "c": "Edges",
-        "d": "Background"
+        "a": "answer1",
+        "b": "answer2",
+        "c": "answer3",
+        "d": "answer4"
+      },
+      "explanations": {
+        "a": "Explanation 1  <a href='www.google.com'>here</a>",
+        "b": "Explanation 2",
+        "c": "Explanation 2",
+        "d": "Explanation 2"
       },
       "correctAnswer": "c",
-      "difficulty": "intermediate"
-    },
-    {
-      "question": "Which of the following preserves edges best during noise removal?",
-      "answers": {
-        "a": "Mean Filter",
-        "b": "Median Filter",
-        "c": "Gaussian Filter",
-        "d": "Laplacian Filter"
-      },
-      "correctAnswer": "b",
-      "difficulty": "intermediate"
-    },
-    {
-      "question": "Laplacian sharpening is sensitive to:",
-      "answers": {
-        "a": "Flat regions",
-        "b": "Noise",
-        "c": "Color only",
-        "d": "Histogram bins"
-      },
-      "correctAnswer": "b",
-      "difficulty": "intermediate"
-    },
-    {
-      "question": "Median filter is non-linear because it uses:",
-      "answers": {
-        "a": "Averaging",
-        "b": "Sorting",
-        "c": "Convolution only",
-        "d": "Frequency response"
-      },
-      "correctAnswer": "b",
       "difficulty": "beginner"
     }
   ]
